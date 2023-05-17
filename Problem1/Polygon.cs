@@ -1,28 +1,16 @@
-﻿namespace Problem1;
-public abstract class Polygon : IArea
+﻿using Problem1l;
+
+namespace Problem1;
+// This is more like a test class
+public class Polygon : PolygonBase
 {
     public uint[] Sides { get; protected set; }
-    public double Area { get; protected set; }
-    public bool IsRegular { get; private set; }
-    public uint Perimeter { get; private set; }
-    protected Polygon(params uint[] sides)
+    public Polygon(params uint[] sides)
     {
         Sides = sides;
-        if (!IsValid())
-        {
-            throw new ArgumentException($"Provided values for {this.GetType().Name} are not valid.");
-        }
-        CheckIfRegular();
-        ComputePerimeter();
-        ComputeArea();
+        ComputePolygon();
     }
-    public double GetArea()
-    {
-        return Area;
-    }
-    // all new Polygons should override this function.
-    protected abstract void ComputeArea();
-    private void CheckIfRegular()
+    protected override void CheckIfRegular()
     {
         uint side = Sides[0];
         for (int i = 1; i < Sides.Length; i++)
@@ -34,18 +22,18 @@ public abstract class Polygon : IArea
         }
         IsRegular = true;
     }
-    private bool IsValid()
+    protected override void IsValid()
     {
         if (Sides.Length < 3) // A polygon must have at least 3 sides
         {
-            return false;
+            throw new ArgumentException("The number of sides should be at least 3");
         }
 
         for (int i = 0; i < Sides.Length; i++)
         {
             if (Sides[i] <= 0) // Length of each side must be positive
             {
-                return false;
+                throw new ArgumentException($"Side with index {i} should be positive");
             }
 
             uint sumOfOtherSides = 0;
@@ -57,21 +45,24 @@ public abstract class Polygon : IArea
                 }
             }
 
-            if (Sides[i] >= sumOfOtherSides) // Sum of any two sides must be greater than the third side
+            if (Sides[i] >= sumOfOtherSides)
             {
-                return false;
+                throw new ArgumentException("One side's length should be less than a sum of a other sides' lengths");
             }
         }
-
-        return true; // All conditions are met, the polygon is valid
     }
-    private void ComputePerimeter()
+    protected override void ComputePerimeter()
     {
         Perimeter = 0;
         for (int i = 0; i < Sides.Length; i++)
         {
             Perimeter += Sides[i];
         }
+    }
+    // Polygon could be calculated as several triangels, but for now I will leave it as empty
+    protected override void ComputeArea()
+    {
+        
     }
 }
 
